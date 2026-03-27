@@ -1,0 +1,123 @@
+# 灵虚界全流程自动化配置 v9.0
+# 角色：济沧海 | 流派：火炮连射
+# 所有按键均可自定义，修改后重启生效
+# F8运行时切换手动/自动打怪
+
+screen:
+  resolution: [1920, 1080]
+  capture_fps: 20
+  combat_fps: 30
+  game_window_title: "Naraka"
+
+character:
+  name: "济沧海"
+  weapon_slot_cannon: 2
+
+aim:
+  sensitivity_x: 0.8             # 水平灵敏度（需校准，建议0.5-1.5）
+  sensitivity_y: 0.6             # 垂直灵敏度
+  threshold: 30                  # 瞄准偏差阈值(px)
+  smooth_steps: 5                # 平滑移动步数
+  dead_zone: 8                   # 死区(px)，小于此值不移动
+
+combat:
+  auto_combat: true              # true=自动打怪 false=手动打怪（仅自动UI流程，F8运行时切换）
+  fire_interval_min: 100         # 炮击最小间隔(ms)
+  fire_interval_max: 200         # 炮击最大间隔(ms)
+  normal_burst_count_min: 3      # 连射最小次数
+  normal_burst_count_max: 5      # 连射最大次数
+  boss_f_interval_min: 150       # Boss F火球最小间隔(ms)
+  boss_f_interval_max: 300       # Boss F火球最大间隔(ms)
+  f_cooldown: 8.0                # F技能CD(秒)
+  heal_threshold: 0.3            # 回血阈值（过渡期<90%回血）
+  close_range_threshold: 0.15    # 近距离阈值（目标面积/屏幕）
+  far_range_threshold: 0.02     # 远距离阈值
+  dodge_cooldown: 1.5            # 闪避CD(秒)
+  target_lost_threshold: 5       # 目标丢失帧数阈值
+
+stage:
+  wave_wait_threshold: 15        # 连续N帧无敌人=通关
+  wave_wait_timeout: 10.0        # 等灵诀最大超时(秒)
+  max_supply_heals: 5            # 过渡期最大回血次数
+  supply_heal_target: 0.9        # 过渡期回血目标(90%)
+
+weapon:
+  durability_check_interval: 5
+  repair_cooldown: 2.0
+
+patrol:
+  forward_duration: 2.5
+  scan_speed: 3
+  stuck_timeout: 10
+  turn_angle_min: 30
+  turn_angle_max: 90
+
+portal:
+  priority: ["shop", "normal", "boss"]
+  search_timeout: 15
+  interact_distance_threshold: 100
+  max_scan_steps: 40             # 传送门搜索最大步数
+  hsv_ranges:
+    shop:
+      lower: [20, 100, 150]
+      upper: [35, 255, 255]
+    normal:
+      lower: [125, 50, 100]
+      upper: [155, 255, 255]
+    boss:
+      lower: [0, 100, 100]
+      upper: [10, 255, 255]
+
+capture_point:
+  stay_duration: 30
+
+detection:
+  yolo_confidence: 0.5
+  yolo_model: "models/enemy_detect.pt"
+  yolo_classes: ["enemy_normal", "enemy_boss", "portal_shop", "portal_normal", "portal_boss"]
+  ui_confidence: 0.85
+  hp_bar_hsv_lower: [0, 100, 100]
+  hp_bar_hsv_upper: [10, 255, 255]
+  hp_bar_hsv_lower2: [170, 100, 100]
+  hp_bar_hsv_upper2: [180, 255, 255]
+  boss_hp_bar_width: 150         # Boss血条宽度阈值(px)
+  ocr_lang: "ch"
+
+jue_priority:
+  S: ["神射", "炮击", "远程增伤", "武备不消耗"]
+  A: ["火属性", "灼烧", "燃烧", "毒爆", "毒属性", "元素强化"]
+  B: ["攻击力", "暴击", "伤害提升"]
+  C: ["回血", "护甲", "减伤"]
+  D: ["近战", "格挡", "拼刀"]
+
+input:
+  key_delay_min: 50
+  key_delay_max: 200
+  humanize: true
+
+keybinds:
+  attack: "mouse_left"
+  skill_f: "f"
+  skill_v: "v"
+  dodge: "shift"
+  weapon_cannon: "2"
+  weapon_melee: "1"              # 近战武器栏（锁定目标时需要先切近战）
+  repair_weapon: "5"             # 武备匣按键
+  heal: "4"                      # 血药按键
+  interact: "e"                  # 传送门交互
+  lock_target: "`"               # 锁定目标（~键）
+  move_forward: "w"
+  move_back: "s"
+  move_left: "a"
+  move_right: "d"
+  jump: "space"                  # 跳跃
+
+hotkeys:
+  pause_resume: "f9"
+  quit: "f10"
+
+debug:
+  show_detection: true
+  save_screenshots: false
+  screenshot_dir: "screenshots"
+  log_level: "INFO"
