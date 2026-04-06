@@ -184,25 +184,25 @@ class UIHandler:
 
         # 1. 选择冰暴分支
         self.select_ice_branch()
-        time.sleep(1.0)
+        time.sleep(2)
 
         # 2. 第一次灵诀选择（5选1）
         ok = self.wait_and_select_spirit(is_five_pick=True)
         if not ok:
             log.warning("第一次灵诀选择失败，继续尝试")
-        time.sleep(0.8)
+        time.sleep(2)
 
         # 3. 第二次灵诀选择（3选1）
         ok = self.wait_and_select_spirit(is_five_pick=False)
         if not ok:
             log.warning("第二次灵诀选择失败，继续尝试")
-        time.sleep(0.8)
+        time.sleep(2)
 
         # 4. 第三次灵诀选择（3选1）
         ok = self.wait_and_select_spirit(is_five_pick=False)
         if not ok:
             log.warning("第三次灵诀选择失败，继续尝试")
-        time.sleep(0.8)
+        time.sleep(2)
 
         log.info("========== 准备关卡: 完成 ==========")
         return True

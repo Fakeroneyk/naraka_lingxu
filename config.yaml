@@ -32,9 +32,9 @@ keys:
 spirit_select:
   template_dir: "assets/ui/spirit_templates/"
   # 5选1时最左卡片的点击坐标（窗口相对坐标，用户实测后配置）
-  pick5_click: [384, 594]
+  pick5_click: [273, 519]
   # 3选1时最左卡片的点击坐标
-  pick3_click: [480, 594]
+  pick3_click: [606, 521]
 
 exploration:
   rotate_step_deg: 45              # 搜敌时每次旋转角度

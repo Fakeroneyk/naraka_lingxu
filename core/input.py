@@ -60,13 +60,20 @@ class GameInput:
             ry: 基于1920x1080的窗口相对Y坐标
         """
         abs_x, abs_y = self._window.relative_to_absolute(rx, ry)
-        pyautogui.click(abs_x, abs_y)
+        pyautogui.moveTo(abs_x, abs_y, duration=0.1)
+        pyautogui.mouseDown()
+        time.sleep(0.1)
+        pyautogui.mouseUp()
+        #pyautogui.click(abs_x, abs_y)
         log.info(f"点击: 相对({rx},{ry}) → 绝对({abs_x},{abs_y})")
         self._wait(0.15)
 
     def left_click(self):
         """在当前鼠标位置左键点击（攻击用）"""
         pyautogui.click()
+        pyautogui.mouseDown()
+        time.sleep(0.1)
+        pyautogui.mouseUp()
         self._wait(0.05)
 
     def move_mouse_relative(self, dx: int, dy: int):
