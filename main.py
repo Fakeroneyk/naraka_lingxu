@@ -5,14 +5,18 @@
 
 import sys
 import threading
+import time
 from pathlib import Path
 
 import yaml
 from pynput import keyboard
 
 from core.hooks import BattleHooks
+from core.input import GameInput
+from core.screen import ScreenCapture
 from core.state_machine import StateMachine
 from utils.logger import get_logger
+from utils.window import GameWindow
 
 log = get_logger(__name__)
 
@@ -55,7 +59,6 @@ def setup_hotkeys(state_machine: StateMachine):
             elif key == keyboard.Key.f11:
                 log.info("[热键] F11: 停止脚本")
                 state_machine.stop()
-                return False  # 停止监听
         except Exception as e:
             log.error(f"热键处理异常: {e}")
 
@@ -65,6 +68,34 @@ def setup_hotkeys(state_machine: StateMachine):
     log.info("全局热键已注册: F10=暂停/恢复, F11=停止")
     return listener
 
+cfg = load_config()
+# ─── 创建钩子系统 ───
+hooks = BattleHooks()
+
+def click_ui_loop():
+    # ─── 启动UI检测线程 ───
+    click_ui_templates = []
+    click_ui_dir = PROJECT_ROOT / "assets" / "ui" / "click_ui"
+    if click_ui_dir.exists():
+        click_ui_templates = [str(p) for p in click_ui_dir.glob("*.png")]
+    log.info(f"UI检测线程已启动，待检测模板: {len(click_ui_templates)}个")
+    window = GameWindow(cfg["game"]["window_title"])
+    input_handler = GameInput(window, cfg["keys"])
+    screen = ScreenCapture(window)
+    while True:
+        time.sleep(2)
+        if not click_ui_templates:
+            continue
+        if not window.locate():
+            continue
+        try:
+            match = screen.find_any_template(click_ui_templates)
+            if match:
+                tpl_path, (x, y) = match
+                input_handler.click(x, y)
+                log.info(f"[UI检测] 匹配到 {Path(tpl_path).name}，已点击 ({x}, {y})")
+        except Exception as e:
+            log.error(f"UI检测线程异常: {e}")
 
 def main():
     log.info("=" * 50)
@@ -72,10 +103,8 @@ def main():
     log.info("=" * 50)
 
     # ─── 加载配置 ───
-    cfg = load_config()
+    #cfg = load_config()
 
-    # ─── 创建钩子系统 ───
-    hooks = BattleHooks()
 
     @hooks.on_battle_start
     def on_start():
@@ -91,6 +120,9 @@ def main():
 
     # ─── 注册热键 ───
     hotkey_listener = setup_hotkeys(sm)
+
+    click_thread = threading.Thread(target=click_ui_loop, daemon=True)
+    click_thread.start()
 
     # ─── 启动 ───
     log.info("程序已启动，等待检测 battleStart.png...")

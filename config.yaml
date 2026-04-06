@@ -6,7 +6,7 @@ timing:
   screenshot_interval: 0.2         # 截图/检测间隔
   action_delay: 0.3                # 动作间隔
   portal_search_timeout: 30        # 传送门搜索超时（秒）
-  combat_timeout: 120              # 单关战斗超时（秒）
+  combat_timeout: 180              # 单关战斗超时（秒）
   lock_attempt_interval: 0.5       # 锁敌尝试间隔
   pre_portal_armor_wait: 5.0       # 进传送门前护甲恢复等待时长（秒）
 

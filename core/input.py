@@ -179,12 +179,13 @@ class GameInput:
         key = self._keys["repair"]
         self.press_key(key)
         log.info("修复武器: R")
-        self._wait(1.0)    # 修复动画等待
+        self._wait(3.0)    # 修复动画等待
 
     def restore_armor(self):
         """按 5 恢复护甲"""
         key = self._keys["restore_armor"]
         self.press_key(key)
+        self._wait(3)
         log.info("恢复护甲: 5")
 
     def attack_combo(self, count: int):
