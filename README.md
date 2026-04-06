@@ -21,7 +21,7 @@
 
 | 项目 | 要求 |
 |------|------|
-| 操作系统 | macOS（已适配 AppleScript 窗口定位） |
+| 操作系统 | win10/11 |
 | Python | >= 3.9 |
 | 游戏模式 | **窗口化** 运行，分辨率 1920×1080 |
 | 游戏英雄 | 济沧海 |
@@ -55,6 +55,7 @@ pip install -r requirements.txt
 | pynput | 全局热键监听 |
 | PyYAML | 配置文件读取 |
 | loguru | 日志 |
+| pywin32 | windows窗口定位 |
 
 ---
 
@@ -231,12 +232,5 @@ naraka_lingxu/
 ### Q: 坐标点击偏移？
 **A:** 确保游戏以窗口化1920×1080运行，并使用坐标实测方法重新校准 `spirit_select` 配置。
 
-### Q: macOS 权限问题？
-**A:** 程序需要以下 macOS 权限：
-- **辅助功能**（Accessibility）：用于 pyautogui 模拟键鼠
-- **屏幕录制**（Screen Recording）：用于 mss 截图
-
-在 系统偏好设置 > 安全性与隐私 > 隐私 中授权终端/VS Code。
-
-### Q: pyautogui 紧急停止了？
-**A:** 鼠标碰到了屏幕左上角触发了 FAILSAFE。这是安全保护机制，避免脚本失控。
+### Q: windows 权限问题？
+**A:** 管理员身份运行

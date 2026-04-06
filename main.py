@@ -84,6 +84,7 @@ def main():
     @hooks.on_battle_end
     def on_end():
         log.info("[HOOK] >>>>>> 灵虚界战斗结束 <<<<<<")
+        sm.stop()
 
     # ─── 创建状态机 ───
     sm = StateMachine(hooks=hooks, cfg=cfg)

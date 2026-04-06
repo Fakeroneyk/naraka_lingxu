@@ -1,6 +1,7 @@
 # YOLO 模型训练操作手册
 
 > 训练 YOLOv8n 4分类目标检测模型，用于识别灵虚界传送门（紫/金/红）和占点圈。
+> 本手册以 **Windows** 环境为准。
 
 ---
 
@@ -241,20 +242,14 @@ names:
 
 ## Step 5: 训练模型
 
-```bash
+```bat
 cd naraka_lingxu
 
-# 训练 YOLOv8n（nano版，速度最快，适合实时推理）
-yolo detect train \
-  model=yolov8n.pt \
-  data=datasets/naraka.yaml \
-  epochs=100 \
-  imgsz=1280 \
-  batch=8 \
-  project=models \
-  name=naraka_v1 \
-  patience=20 \
-  device=mps
+:: Windows NVIDIA GPU（推荐）
+yolo detect train model=yolov8n.pt data=datasets/naraka.yaml epochs=100 imgsz=1280 batch=16 project=models name=naraka_v1 patience=20 device=0
+
+:: Windows 无独立显卡（CPU训练，较慢）
+:: yolo detect train model=yolov8n.pt data=datasets/naraka.yaml epochs=100 imgsz=1280 batch=4 project=models name=naraka_v1 patience=20 device=cpu
 ```
 
 ### 参数说明
@@ -265,9 +260,9 @@ yolo detect train \
 | `data` | datasets/naraka.yaml | 数据集配置文件 |
 | `epochs` | 100 | 训练轮数 |
 | `imgsz` | 1280 | 输入图像尺寸（游戏画面较大，推荐1280） |
-| `batch` | 8 | 批量大小（根据内存调整，M系列Mac可用16） |
+| `batch` | 16 | 批量大小（NVIDIA GPU；CPU 训练改为 4） |
 | `patience` | 20 | 早停轮数（20轮无提升则停止） |
-| `device` | mps | Apple Silicon GPU（Intel Mac 改为 cpu） |
+| `device` | 0 | NVIDIA GPU（无显卡改为 `cpu`） |
 
 ### 训练输出
 
@@ -334,9 +329,10 @@ print(f"平均推理时间: {avg_ms:.1f}ms（要求 < 500ms）")
 
 ## Step 7: 部署到项目
 
-```bash
-# 将训练好的权重复制到项目 models 目录
-cp models/naraka_v1/weights/best.pt models/naraka_v1/weights/best.pt
+```bat
+:: 训练完成后权重已在 models/naraka_v1/weights/best.pt，无需额外复制
+:: 如需备份到其他位置：
+copy models\naraka_v1\weights\best.pt models\best_backup.pt
 ```
 
 确认 `config.yaml` 中模型路径配置正确：
@@ -355,8 +351,8 @@ models:
 ### Q: 训练数据太少，mAP 很低？
 **A:** 每类至少需要 50 张原始标注图片，配合增强后达到 200+。建议在不同关卡、不同时间段多次采集。
 
-### Q: Apple Silicon Mac 训练速度？
-**A:** M系列芯片使用 `device=mps`，100epochs约需要20-40分钟（取决于数据量）。
+### Q: Windows 训练速度参考？
+**A:** NVIDIA RTX 3060 训练100epochs约需要15-30分钟。无独立显卡使用CPU训练约需2-4小时，建议有NVIDIA显卡时使用 `device=0`。
 
 ### Q: 某个类别总是漏检？
 **A:** 检查该类别的训练数据是否足够，以及标注是否准确。可以专门针对该类别补充数据。
@@ -366,3 +362,4 @@ models:
 
 ### Q: 传送门在不同地图背景下检测效果差？
 **A:** 采集时需要覆盖所有5个关卡的地图背景。重点确保各关卡地图下的传送门都有截图。
+

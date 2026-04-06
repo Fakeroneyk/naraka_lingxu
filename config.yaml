@@ -1,9 +1,9 @@
 game:
-  window_title: "征神之路"          # 游戏窗口标题（待确认精确字符串）
+  window_title: "Naraka"           # 游戏窗口标题（待确认精确字符串）
   resolution: [1920, 1080]
 
 timing:
-  screenshot_interval: 1.0         # 截图/检测间隔（每秒1次）
+  screenshot_interval: 0.2         # 截图/检测间隔
   action_delay: 0.3                # 动作间隔
   portal_search_timeout: 30        # 传送门搜索超时（秒）
   combat_timeout: 120              # 单关战斗超时（秒）

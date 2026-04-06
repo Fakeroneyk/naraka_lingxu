@@ -217,7 +217,7 @@ python -m pytest tests/test_integration.py -v
 # 测试1: 验证窗口定位
 python -c "
 from utils.window import GameWindow
-w = GameWindow('征神之路')
+w = GameWindow('Naraka')
 ok = w.locate()
 print('窗口定位:', '成功' if ok else '失败', w.region)
 "
@@ -231,8 +231,8 @@ w = GameWindow('征神之路')
 w.locate()
 sc = ScreenCapture(w)
 frame = sc.capture()
-cv2.imwrite('/tmp/test_capture.png', frame)
-print('截图已保存到 /tmp/test_capture.png，形状:', frame.shape)
+cv2.imwrite('test_capture.png', frame)
+print('截图已保存到 test_capture.png（项目目录下），形状:', frame.shape)
 "
 
 # 测试3: 验证按键（请在游戏中打开聊天框后运行）
@@ -325,8 +325,8 @@ if portals:
 for p in portals:
     x1,y1,x2,y2 = p.bbox
     cv2.rectangle(frame, (x1,y1), (x2,y2), (128,0,255), 2)
-cv2.imwrite('/tmp/portal_detection.png', frame)
-print('检测结果图已保存到 /tmp/portal_detection.png')
+cv2.imwrite('portal_detection.png', frame)
+print('检测结果图已保存到 portal_detection.png（项目目录下）')
 "
 ```
 

@@ -61,7 +61,7 @@ class GameInput:
         """
         abs_x, abs_y = self._window.relative_to_absolute(rx, ry)
         pyautogui.click(abs_x, abs_y)
-        log.debug(f"点击: 相对({rx},{ry}) → 绝对({abs_x},{abs_y})")
+        log.info(f"点击: 相对({rx},{ry}) → 绝对({abs_x},{abs_y})")
         self._wait(0.15)
 
     def left_click(self):

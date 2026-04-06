@@ -1,10 +1,9 @@
 """
 游戏窗口管理模块
-负责定位游戏窗口位置，计算窗口相对坐标，支持 macOS 平台。
+负责定位游戏窗口位置，计算窗口相对坐标，支持 Windows 平台。
+依赖: pywin32 (pip install pywin32)
 """
 
-import subprocess
-import re
 from typing import Optional, Tuple
 
 from utils.logger import get_logger
@@ -16,7 +15,7 @@ class GameWindow:
     """
     管理游戏窗口的定位与坐标转换。
 
-    在 macOS 下通过 AppleScript 获取窗口位置和大小。
+    在 Windows 下通过 win32gui 枚举窗口标题并获取客户区位置和大小。
     所有对外暴露的坐标均为窗口相对坐标，基于1920x1080分辨率。
     """
 
@@ -28,6 +27,7 @@ class GameWindow:
         self._width: int = 0
         self._height: int = 0
         self._found: bool = False
+        self._hwnd: Optional[int] = None
 
     @property
     def found(self) -> bool:
@@ -44,7 +44,7 @@ class GameWindow:
         返回是否成功找到窗口。
         """
         try:
-            result = self._get_window_bounds_macos()
+            result = self._get_window_bounds_windows()
             if result:
                 self._x, self._y, self._width, self._height = result
                 self._found = True
@@ -62,36 +62,85 @@ class GameWindow:
             log.error(f"定位游戏窗口异常: {e}")
             return False
 
-    def _get_window_bounds_macos(self) -> Optional[Tuple[int, int, int, int]]:
+    def _get_window_bounds_windows(self) -> Optional[Tuple[int, int, int, int]]:
         """
-        使用 AppleScript 获取 macOS 窗口位置和大小。
-        返回 (x, y, width, height) 或 None。
+        使用 win32gui 获取 Windows 窗口位置和大小。
+
+        策略：
+          1. 优先查找标题完全匹配的窗口
+          2. 其次查找标题包含关键字的窗口
+          3. 使用客户区坐标（去除标题栏/边框）
+
+        Returns:
+            (x, y, width, height) 屏幕绝对坐标，或 None
         """
-        script = f'''
-        tell application "System Events"
-            set targetProcess to first process whose name contains "{self.window_title}"
-            tell targetProcess
-                set targetWindow to front window
-                set {{x, y}} to position of targetWindow
-                set {{w, h}} to size of targetWindow
-                return (x as text) & "," & (y as text) & "," & (w as text) & "," & (h as text)
-            end tell
-        end tell
-        '''
         try:
-            result = subprocess.run(
-                ["osascript", "-e", script],
-                capture_output=True, text=True, timeout=5
-            )
-            if result.returncode == 0 and result.stdout.strip():
-                parts = result.stdout.strip().split(",")
-                if len(parts) == 4:
-                    return tuple(int(p.strip()) for p in parts)
-        except subprocess.TimeoutExpired:
-            log.warning("AppleScript 获取窗口位置超时")
+            import win32gui
+            import win32con
+        except ImportError:
+            log.error("pywin32 未安装，请执行: pip install pywin32")
+            return None
+
+        # 候选窗口列表：(hwnd, title)
+        candidates = []
+
+        def _enum_callback(hwnd, _):
+            if not win32gui.IsWindowVisible(hwnd):
+                return
+            title = win32gui.GetWindowText(hwnd)
+            if not title:
+                return
+            # 完全匹配或包含匹配
+            if title == self.window_title or self.window_title in title:
+                candidates.append((hwnd, title))
+
+        win32gui.EnumWindows(_enum_callback, None)
+
+        if not candidates:
+            return None
+
+        # 优先取完全匹配，否则取第一个包含匹配
+        exact = [c for c in candidates if c[1] == self.window_title]
+        hwnd, title = (exact[0] if exact else candidates[0])
+        self._hwnd = hwnd
+        log.debug(f"找到游戏窗口: hwnd={hwnd} title='{title}'")
+
+        # 获取客户区在屏幕中的绝对位置
+        # ClientToScreen 获取客户区左上角的屏幕坐标
+        try:
+            client_left, client_top = win32gui.ClientToScreen(hwnd, (0, 0))
+            rect = win32gui.GetClientRect(hwnd)
+            client_width = rect[2] - rect[0]
+            client_height = rect[3] - rect[1]
+
+            if client_width <= 0 or client_height <= 0:
+                log.warning("客户区大小无效，尝试使用窗口矩形")
+                window_rect = win32gui.GetWindowRect(hwnd)
+                return (
+                    window_rect[0],
+                    window_rect[1],
+                    window_rect[2] - window_rect[0],
+                    window_rect[3] - window_rect[1],
+                )
+
+            return (client_left, client_top, client_width, client_height)
+
         except Exception as e:
-            log.error(f"AppleScript 执行异常: {e}")
-        return None
+            log.error(f"获取窗口客户区失败: {e}")
+            # fallback: 使用窗口矩形
+            window_rect = win32gui.GetWindowRect(hwnd)
+            return (
+                window_rect[0],
+                window_rect[1],
+                window_rect[2] - window_rect[0],
+                window_rect[3] - window_rect[1],
+            )
+
+    def refresh(self) -> bool:
+        """
+        刷新窗口位置（游戏窗口移动后调用）
+        """
+        return self.locate()
 
     def relative_to_absolute(self, rx: int, ry: int) -> Tuple[int, int]:
         """
@@ -122,3 +171,16 @@ class GameWindow:
             self.target_width // 2,
             self.target_height // 2
         )
+
+    def bring_to_front(self):
+        """将游戏窗口置于最前（确保键鼠操作有效）"""
+        if self._hwnd is None:
+            return
+        try:
+            import win32gui
+            import win32con
+            win32gui.ShowWindow(self._hwnd, win32con.SW_RESTORE)
+            win32gui.SetForegroundWindow(self._hwnd)
+            log.debug("游戏窗口已置于最前")
+        except Exception as e:
+            log.warning(f"置前窗口失败: {e}")
