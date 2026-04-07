@@ -204,6 +204,13 @@ class GameInput:
         self._wait(3)
         log.info("恢复护甲: 5")
 
+    def restore_xue(self):
+        """按 4 恢复血量"""
+        key = "4"
+        self.press_key(key)
+        self._wait(3)
+        log.info("恢复血量: 4")
+
     def attack_combo(self, count: int):
         """
         近战连击。
@@ -239,11 +246,19 @@ class GameInput:
         """
         log.info("传送门前置: 恢复护甲")
         self.restore_armor()
-        log.info(f"等待 {armor_wait} 秒...")
-        time.sleep(armor_wait)
+        self.restore_armor()
+        log.info("传送门前置: 恢复血量")
+        self.restore_xue()
+        self.restore_xue()
+        log.info("传送门前置: 修武器")
+        
+        self.switch_ranged()
+        time.sleep(0.4)
+        self.repair_weapon()
+        self.switch_melee()
         log.info("按E进入传送门")
         self.interact()
-        self._wait(2.0)   # 等待加载过渡
+        self._wait(3.0)   # 等待加载过渡
 
     # ─────────────── 辅助 ───────────────
 
