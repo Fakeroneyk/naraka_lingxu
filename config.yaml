@@ -57,3 +57,5 @@ assets:
   battle_end: "assets/battleEnd.png"
   ice_branch: "assets/ui/ice_branch.png"
   capture_point_ui: "assets/ui/capture_point_ui.png"
+  attack_zero: "assets/ui/attack_zero.png"
+  suoding: "assets/ui/suoding.png"

@@ -62,7 +62,7 @@ class CombatHandler:
         # 武器耐久相关
         self._last_repair_check: float = 0.0
         # 可选：耐久UI模板（用户提供后填入）
-        self._durability_empty_template: Optional[str] = None
+        self._durability_empty_template: str = self._cfg["assets"]["attack_zero"]
 
     def run_combat_loop(self) -> bool:
         """
