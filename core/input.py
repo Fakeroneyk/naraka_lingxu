@@ -6,8 +6,11 @@
 import random
 import time
 from typing import Optional
+import keyboard
 
 import pyautogui
+import win32api
+import win32con
 
 from utils.logger import get_logger
 from utils.window import GameWindow
@@ -40,15 +43,15 @@ class GameInput:
 
     def press_key(self, key: str):
         """按下并释放按键"""
-        pyautogui.press(key)
+        keyboard.send(key)
         log.debug(f"按键: {key}")
         self._wait(0.1)
 
     def hold_key(self, key: str, duration: float):
         """长按按键指定时长"""
-        pyautogui.keyDown(key)
+        keyboard.press(key)
         time.sleep(duration)
-        pyautogui.keyUp(key)
+        keyboard.release(key)
         log.debug(f"长按: {key} 持续 {duration}s")
 
     def click(self, rx: int, ry: int):
@@ -70,15 +73,14 @@ class GameInput:
 
     def left_click(self):
         """在当前鼠标位置左键点击（攻击用）"""
-        pyautogui.click()
         pyautogui.mouseDown()
         time.sleep(0.1)
         pyautogui.mouseUp()
-        self._wait(0.05)
+        self._wait(0.1)
 
     def move_mouse_relative(self, dx: int, dy: int):
         """鼠标相对位移（用于视角旋转）"""
-        pyautogui.moveRel(dx, dy, duration=0.1)
+        self.moveRel(dx, dy)
 
     # ─────────────── 移动 ───────────────
 
@@ -97,11 +99,15 @@ class GameInput:
         """冲刺前进（W + Shift 同时按下）"""
         w_key = self._keys["move_forward"]
         sprint_key = self._keys["sprint"]
-        pyautogui.keyDown(sprint_key)
-        pyautogui.keyDown(w_key)
+
+        keyboard.press(w_key)
+        time.sleep(0.01)  # 确保按键顺序生效
+        keyboard.press(sprint_key)
         time.sleep(duration)
-        pyautogui.keyUp(w_key)
-        pyautogui.keyUp(sprint_key)
+        w_key = self._keys["move_forward"]
+        keyboard.release(w_key)
+        keyboard.release(sprint_key)
+
         log.debug(f"冲刺前进 {duration}s")
 
     def random_walk(self, duration: float):
@@ -112,6 +118,16 @@ class GameInput:
         self.hold_key(chosen, duration)
 
     # ─────────────── 视角 ───────────────
+
+    def moveRel(x, y):
+        win32api.mouse_event(
+            win32con.MOUSEEVENTF_MOVE,  # 事件类型：移动鼠标
+            x,  # dx：水平偏移（相对当前位置）
+            y,  # dy：垂直偏移（相对当前位置）
+            0,  # 鼠标滚轮（0 表示不操作）
+            0   # 额外数据（通常为 0）
+        )
+        time.sleep(random.uniform(0.1, 0.2))
 
     def rotate_camera(self, delta_x: int, delta_y: int = 0):
         """
@@ -124,8 +140,8 @@ class GameInput:
         # 先将鼠标移到窗口中心，再进行相对偏移
         cx, cy = self._window.get_center()
         pyautogui.moveTo(cx, cy, duration=0.05)
-        pyautogui.moveRel(delta_x, delta_y, duration=0.15)
-        log.debug(f"视角旋转: dx={delta_x}, dy={delta_y}")
+        self.moveRel(delta_x, delta_y)
+        log.info(f"视角旋转: dx={delta_x}, dy={delta_y}")
         self._wait(0.1)
 
     def rotate_step(self, degrees: float, pixel_per_deg: float):
@@ -209,7 +225,7 @@ class GameInput:
         """
         for i in range(count):
             self.left_click()
-            self._wait(0.3)
+            self._wait(1.2)
         log.debug(f"远程射击 x{count}")
 
     # ─────────────── 复合操作 ───────────────

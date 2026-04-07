@@ -20,8 +20,8 @@ keys:
   move_back: "s"
   move_left: "a"
   move_right: "d"
-  sprint: "shift"
-  lock_target: "`"                 # ~ 键（近战武器下锁敌）
+  sprint: "left shift"
+  lock_target: "~"                 # ~ 键（近战武器下锁敌）
   interact: "e"
   f_skill: "f"                     # 火球技能
   melee_weapon: "1"                # 切换双刀
@@ -43,10 +43,10 @@ exploration:
   max_explore_rounds: 5            # 最大探索轮数后随机游走
 
 combat:
-  attack_combo_count: 5            # 近战连击次数
+  attack_combo_count: 3            # 近战连击次数
   ranged_burst_count: 3            # 远程火炮射击次数
-  sprint_duration: 1.5             # 冲锋持续时长（秒）
-  repair_check_interval: 10        # 检测武器耐久间隔（秒）
+  sprint_duration: 1               # 冲锋持续时长（秒）
+  repair_check_interval: 60        # 检测武器耐久间隔（秒）
 
 models:
   # 合并为一个模型文件（4分类: portal_purple=0, portal_gold=1, portal_red=2, capture_zone=3）

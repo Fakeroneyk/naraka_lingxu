@@ -20,7 +20,7 @@ log = get_logger(__name__)
 # 当按下~锁敌后，若敌人在范围内，游戏会有锁定指示器UI出现。
 # 暂用"尝试锁定后短暂等待"策略，后续可加锁定指示器模板检测。
 LOCK_WAIT = 0.6        # 锁敌后等待时间（秒）
-LOCK_ASSUME_RANGE = 5 # 连续锁定失败次数后视为需要探索
+LOCK_ASSUME_RANGE = 3 # 连续锁定失败次数后视为需要探索
 
 
 class CombatHandler:
@@ -105,6 +105,10 @@ class CombatHandler:
                 # 锁敌失败：进入搜敌逻辑
                 lock_fail_streak += 1
                 log.debug(f"锁敌失败（连续 {lock_fail_streak} 次）")
+                # 索敌失败就切换火炮来一下
+                self._input.switch_ranged()
+                time.sleep(0.4)
+                self._input.ranged_burst(1)  # 火炮试探一下
 
                 if lock_fail_streak >= LOCK_ASSUME_RANGE:
                     # 连续多次锁不到，执行探索
@@ -130,17 +134,18 @@ class CombatHandler:
         log.info("执行攻击序列")
 
         # 冲锋向敌人
-        self._input.sprint_forward(self._sprint_dur)
+        #self._input.sprint_forward(self._sprint_dur)
 
         # 近战连击
-        self._input.attack_combo(self._combo_count)
+        #self._input.attack_combo(self._combo_count)
 
         # 火球技能
         self._input.use_f_skill()
-        time.sleep(0.3)
+        time.sleep(1.2)
 
         # 切换火炮补刀
         self._input.switch_ranged()
+        time.sleep(0.4)
         self._input.ranged_burst(self._ranged_count)
 
         # 切回近战准备下一轮
@@ -201,13 +206,13 @@ class CombatHandler:
             frame = self._screen.capture()
             pos = self._screen.find_template(self._durability_empty_template, frame=frame)
             if pos:
-                log.warning("火炮耐久耗尽，自动修复")
+                log.info("火炮耐久耗尽，自动修复")
                 self._input.repair_weapon()
                 return
 
         # 未配置耐久模板时，定期主动修复（保守策略）
         # 每 repair_check_interval 秒修复一次，避免耐久耗尽
-        log.debug("定期修复武器（保守策略）")
+        log.info("定期修复武器（保守策略）")
         current_weapon_is_ranged = False  # 简化：不追踪当前武器状态
         # 切到火炮后修复，再切回近战
         # 注意：R键是否只在持远程武器时有效取决于游戏机制
