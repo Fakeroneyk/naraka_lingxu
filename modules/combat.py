@@ -19,8 +19,8 @@ log = get_logger(__name__)
 # 锁敌成功的检测依据：
 # 当按下~锁敌后，若敌人在范围内，游戏会有锁定指示器UI出现。
 # 暂用"尝试锁定后短暂等待"策略，后续可加锁定指示器模板检测。
-LOCK_WAIT = 0.4        # 锁敌后等待时间（秒）
-LOCK_ASSUME_RANGE = 25 # 连续锁定失败次数后视为需要探索
+LOCK_WAIT = 0.6        # 锁敌后等待时间（秒）
+LOCK_ASSUME_RANGE = 5 # 连续锁定失败次数后视为需要探索
 
 
 class CombatHandler:
@@ -151,20 +151,14 @@ class CombatHandler:
         """
         判断是否成功锁定目标。
 
-        策略：
-        - 若提供了锁定指示器模板，使用模板匹配
-        - 否则：按~锁敌后等待，假设有目标则视为成功
-          （保守策略：每次都假设锁到了，靠近攻击后若没怪则通过无打击反馈判断）
-
-        当前采用"尝试锁定计数"策略：
-        连续锁定失败次数用 lock_fail_streak 计数，
-        通过判断攻击是否有实际效果（暂用计数代替）来决定是否探索。
-        此处返回 True 以执行攻击序列，若发现无效（无打击音效等）再退化到探索。
-        TODO: 后续可集成锁定指示器模板检测
+        策略：使用模板匹配检测锁定指示器（suoding.png）是否出现在画面中。
         """
-        # 简化版：只要执行了锁敌就认为可以尝试攻击
-        # 实际上游戏锁定失败时会无明显反馈，靠 lock_fail_streak 兜底
-        return True
+        suoding_template = self._cfg["assets"]["suoding"]
+        result = self._screen.find_template(
+            suoding_template,
+            threshold=self._cfg["threshold"]["template_match"],
+        )
+        return result is not None
 
     def _explore_for_enemies(self) -> bool:
         """
