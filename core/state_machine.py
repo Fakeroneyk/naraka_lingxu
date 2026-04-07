@@ -211,8 +211,7 @@ class StateMachine:
     def _tick(self):
         """根据当前状态执行对应逻辑"""
         handler = {
-            #BattleState.IDLE: self._handle_idle,
-            BattleState.IDLE: self._handle_combat,  #todo : 目前先直接进入打怪阶段
+            BattleState.IDLE: self._handle_idle,#todo : 目前先直接进入boss
             BattleState.PREPARATION: self._handle_preparation,
             BattleState.PORTAL_TRANSITION: self._handle_portal_transition,
             BattleState.COMBAT_NORMAL: self._handle_combat,

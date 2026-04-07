@@ -11,7 +11,7 @@ timing:
   pre_portal_armor_wait: 5.0       # 进传送门前护甲恢复等待时长（秒）
 
 threshold:
-  template_match: 0.85             # 模板匹配置信度
+  template_match: 0.8             # 模板匹配置信度
   yolo_confidence: 0.6             # YOLO检测置信度
   portal_close_ratio: 0.05         # 传送门bbox占画面比例阈值（靠近判定）
 
@@ -44,7 +44,7 @@ exploration:
 
 combat:
   attack_combo_count: 3            # 近战连击次数
-  ranged_burst_count: 3            # 远程火炮射击次数
+  ranged_burst_count: 2            # 远程火炮射击次数
   sprint_duration: 1               # 冲锋持续时长（秒）
   repair_check_interval: 60        # 检测武器耐久间隔（秒）
 

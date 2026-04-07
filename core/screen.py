@@ -23,7 +23,7 @@ class ScreenCapture:
     所有返回坐标均为基于1920x1080的窗口相对坐标。
     """
 
-    def __init__(self, window: GameWindow, template_match_threshold: float = 0.85):
+    def __init__(self, window: GameWindow, template_match_threshold: float = 0.8):
         self._window = window
         self._threshold = template_match_threshold
         self._sct = mss.mss()

@@ -119,7 +119,7 @@ class GameInput:
 
     # ─────────────── 视角 ───────────────
 
-    def moveRel(x, y):
+    def moveRel(self, x, y):
         win32api.mouse_event(
             win32con.MOUSEEVENTF_MOVE,  # 事件类型：移动鼠标
             x,  # dx：水平偏移（相对当前位置）

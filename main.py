@@ -113,7 +113,7 @@ def main():
     @hooks.on_battle_end
     def on_end():
         log.info("[HOOK] >>>>>> 灵虚界战斗结束 <<<<<<")
-        sm.stop()
+        sm._input.press_key("esc")  # 战斗结束后按Esc关闭奖励界面，准备下一轮
 
     # ─── 创建状态机 ───
     sm = StateMachine(hooks=hooks, cfg=cfg)

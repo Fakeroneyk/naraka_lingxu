@@ -80,6 +80,10 @@ class CombatHandler:
         self._input.switch_melee()
         time.sleep(0.3)
 
+        self._input.sprint_forward(1)
+        self._input.press_key("space")  # 先按一下前进键，增加初始移动惯性
+        self._input.sprint_forward(1)
+
         while time.time() - start_time < self._combat_timeout:
 
             # ─── 1. 检测通关标志（灵诀弹窗）───
@@ -101,6 +105,7 @@ class CombatHandler:
                 lock_fail_streak = 0
                 explore_rounds = 0
                 self._execute_attack_sequence()
+                self._input.rotate_step(self._rotate_step_deg, self._pixel_per_deg)
             else:
                 # 锁敌失败：进入搜敌逻辑
                 lock_fail_streak += 1
@@ -109,6 +114,9 @@ class CombatHandler:
                 self._input.switch_ranged()
                 time.sleep(0.4)
                 self._input.ranged_burst(1)  # 火炮试探一下
+                time.sleep(1.3)
+                self._input.switch_melee()
+                self._input.rotate_step(self._rotate_step_deg, self._pixel_per_deg)
 
                 if lock_fail_streak >= LOCK_ASSUME_RANGE:
                     # 连续多次锁不到，执行探索
@@ -134,7 +142,7 @@ class CombatHandler:
         log.info("执行攻击序列")
 
         # 冲锋向敌人
-        #self._input.sprint_forward(self._sprint_dur)
+        self._input.sprint_forward(self._sprint_dur)
 
         # 近战连击
         #self._input.attack_combo(self._combo_count)
@@ -142,6 +150,8 @@ class CombatHandler:
         # 火球技能
         self._input.use_f_skill()
         time.sleep(1.2)
+
+        self._input.rotate_camera(300, -300)
 
         # 切换火炮补刀
         self._input.switch_ranged()
@@ -186,6 +196,9 @@ class CombatHandler:
             time.sleep(0.25)
             self._input.lock_target()
             time.sleep(LOCK_WAIT)
+            if self._is_target_locked():
+                log.info("扫描过程中锁定了敌人！")
+                return False
 
         # 扫描完一圈没找到，向前移动再继续
         log.info("扫描未找到敌人，向前移动探索")
