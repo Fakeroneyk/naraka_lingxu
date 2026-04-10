@@ -20,10 +20,10 @@ from utils.logger import get_logger
 log = get_logger(__name__)
 
 # 类别名称常量
-CLASS_PORTAL_PURPLE = "portal_purple"
-CLASS_PORTAL_GOLD = "portal_gold"
-CLASS_PORTAL_RED = "portal_red"
-CLASS_CAPTURE_ZONE = "capture_zone"
+CLASS_PORTAL_PURPLE = "紫门"
+CLASS_PORTAL_GOLD = "金门"
+CLASS_PORTAL_RED = "红门"
+CLASS_CAPTURE_ZONE = "站点"
 
 # 类别ID → 名称映射
 CLASS_NAMES = {
@@ -109,6 +109,7 @@ class ObjectDetector:
 
         try:
             results = self._model(frame, conf=self._confidence, verbose=False)
+            #log.info(f"YOLO 检测完成: {len(results)} 结果")
             detections = []
             for r in results:
                 if r.boxes is None:
@@ -149,7 +150,7 @@ class ObjectDetector:
         """
         target_class = PORTAL_TYPE_MAP.get(portal_type)
         if target_class is None:
-            log.warning(f"未知传送门类型: {portal_type}")
+            log.info(f"未知传送门类型: {portal_type}")
             return []
 
         all_detections = self.detect(frame)
@@ -158,7 +159,7 @@ class ObjectDetector:
 
         if portals:
             best = portals[0]
-            log.debug(
+            log.info(
                 f"检测到 {portal_type} 传送门: "
                 f"中心=({best.center[0]},{best.center[1]}) "
                 f"置信度={best.confidence:.2f} 面积={best.area}"
@@ -204,6 +205,7 @@ class ObjectDetector:
         """
         portals = self.detect_portals(frame, portal_type)
         if not portals:
+            log.info(f"未检测到 {portal_type} 传送门")
             return None
 
         cx = portals[0].center[0]
@@ -235,5 +237,5 @@ class ObjectDetector:
 
         frame_area = frame.shape[0] * frame.shape[1]
         portal_ratio = portals[0].area / frame_area
-        log.debug(f"传送门面积占比: {portal_ratio:.4f} (阈值: {close_ratio})")
+        log.info(f"传送门面积占比: {portal_ratio:.4f} (阈值: {close_ratio})")
         return portal_ratio >= close_ratio

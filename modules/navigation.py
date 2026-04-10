@@ -74,18 +74,18 @@ class Navigator:
 
             if direction == "center":
                 # 传送门在正前方，向前走
-                log.debug("传送门正前方，前进")
+                log.info("传送门正前方，前进")
                 self._input.move_toward("w", 0.8)
 
             elif direction == "left":
                 # 传送门偏左，左转视角后前进
-                log.debug("传送门偏左，左转")
+                log.info("传送门偏左，左转")
                 self._input.rotate_step(-self._rotate_step_deg / 2, self._pixel_per_deg)
                 self._input.move_toward("w", 0.5)
 
             elif direction == "right":
                 # 传送门偏右，右转视角后前进
-                log.debug("传送门偏右，右转")
+                log.info("传送门偏右，右转")
                 self._input.rotate_step(self._rotate_step_deg / 2, self._pixel_per_deg)
                 self._input.move_toward("w", 0.5)
 

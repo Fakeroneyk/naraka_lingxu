@@ -111,6 +111,9 @@ class CombatHandler:
                 lock_fail_streak += 1
                 log.debug(f"锁敌失败（连续 {lock_fail_streak} 次）")
                 # 索敌失败就切换火炮来一下
+                if self._ui.detect_spirit_popup():
+                    log.info("检测到灵诀弹窗，当前关卡通关！")
+                    return True
                 self._input.switch_ranged()
                 time.sleep(0.4)
                 self._input.ranged_burst(1)  # 火炮试探一下
@@ -151,12 +154,16 @@ class CombatHandler:
         self._input.use_f_skill()
         time.sleep(1.2)
 
-        self._input.rotate_camera(300, -300)
+        self._input.rotate_camera(200, -200)
 
         # 切换火炮补刀
         self._input.switch_ranged()
         time.sleep(0.4)
-        self._input.ranged_burst(self._ranged_count)
+        for _ in range(self._ranged_count):
+            if self._ui.detect_spirit_popup():
+                log.info("检测到灵诀弹窗，当前关卡通关！")
+                return
+            self._input.ranged_burst(1)
 
         # 切回近战准备下一轮
         self._input.switch_melee()
